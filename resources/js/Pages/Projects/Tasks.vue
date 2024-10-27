@@ -1,45 +1,59 @@
 <template>
     <AuthenticatedLayout>
-        <template #header>
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2
-                        class="font-semibold text-xl text-gray-800 leading-tight"
-                    >
-                        {{ project.name }}
-                    </h2>
-                    <p class="text-sm text-gray-600">
-                        <Link
-                            href="/projects"
-                            class="text-blue-500 hover:underline"
-                            >Projects</Link
-                        >
-                        / {{ project.name }}
-                    </p>
-                </div>
+        <div class="tasks-page">
+            <Breadcrumb :items="breadcrumbs" />
+
+            <div class="header-actions mb-6">
                 <button
-                    @click="addTask"
-                    class="bg-blue-500 text-white px-4 py-2 rounded"
+                    @click="openAddTaskModal"
+                    class="bg-indigo-600 text-white px-6 py-2 rounded shadow-md transition duration-300 ease-in-out transform hover:bg-indigo-700 hover:scale-105 focus:outline-none focus:ring focus:ring-indigo-300"
                 >
                     Add Task
                 </button>
             </div>
-        </template>
 
-        <div class="grid grid-cols-4 gap-4 mt-6">
-            <div
-                v-for="(tasks, status) in taskStatuses"
-                :key="status"
-                class="bg-gray-100 p-4 rounded"
-            >
-                <h3 class="font-semibold text-lg">{{ status }}</h3>
+            <div class="task-board grid grid-cols-4 gap-6">
                 <div
-                    v-for="task in tasks"
-                    :key="task.id"
-                    class="bg-white p-4 rounded shadow mt-2"
+                    v-for="status in taskStatuses"
+                    :key="status.id"
+                    class="task-column bg-gray-50 p-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:shadow-xl"
                 >
-                    <h4 class="font-semibold">{{ task.title }}</h4>
-                    <p class="text-sm text-gray-600">{{ task.description }}</p>
+                    <h2 class="text-xl font-semibold text-indigo-600 mb-4">
+                        {{ status.name }}
+                    </h2>
+                    <div
+                        v-for="task in filteredTasksByStatus(status.name)"
+                        :key="task.id"
+                        class="task-card mb-6 p-4 bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition duration-300 ease-in-out"
+                    >
+                        <strong
+                            class="text-xs bg-indigo-500 text-white px-2 py-1 rounded-full"
+                            >{{ task.status }}</strong
+                        >
+                        <h3 class="text-lg font-semibold mt-2">
+                            {{ task.title }}
+                        </h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            {{ task.description }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="isModalOpen" class="modal-overlay">
+                <div class="modal">
+                    <h2>Add New Task</h2>
+                    <input
+                        type="text"
+                        v-model="newTaskName"
+                        placeholder="Task Name"
+                    />
+                    <textarea
+                        v-model="newTaskDescription"
+                        placeholder="Description"
+                    ></textarea>
+                    <button @click="submitNewTask">Submit</button>
+                    <button @click="closeAddTaskModal">Close</button>
                 </div>
             </div>
         </div>
@@ -47,45 +61,93 @@
 </template>
 
 <script>
-import { computed } from "vue";
-import { usePage } from "@inertiajs/vue3";
+import { ref, computed } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { router } from "@inertiajs/vue3";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+
+const breadcrumbs = [
+    { name: "Projects", url: "/projects" },
+    { name: "Project Details", url: "/projects" },
+    { name: "Edit Project" },
+];
 
 export default {
     components: {
         AuthenticatedLayout,
+        Breadcrumb,
     },
-    setup() {
-        const { project, tasks } = usePage().props.value;
+    props: {
+        projectName: String,
+        tasks: Array,
+        taskStatuses: Array,
+    },
+    setup(props) {
+        const isModalOpen = ref(false);
+        const newTaskName = ref("");
+        const newTaskDescription = ref("");
 
-        // Group tasks by their status
-        const taskStatuses = computed(() => {
-            return {
-                "TO DO": tasks.filter((task) => task.status.name === "TO DO"),
-                "IN PROGRESS": tasks.filter(
-                    (task) => task.status.name === "IN PROGRESS"
-                ),
-                "IN REVIEW": tasks.filter(
-                    (task) => task.status.name === "IN REVIEW"
-                ),
-                DONE: tasks.filter((task) => task.status.name === "DONE"),
-            };
-        });
+        const filteredTasksByStatus = (status) => {
+            return props.tasks.filter((task) => task.status === status);
+        };
 
-        const addTask = () => {
-            router.visit(route("tasks.index", { project: project.id }));
+        const openAddTaskModal = () => {
+            isModalOpen.value = true;
+        };
+
+        const closeAddTaskModal = () => {
+            isModalOpen.value = false;
+        };
+
+        const submitNewTask = () => {
+            console.log(
+                "Task submitted:",
+                newTaskName.value,
+                newTaskDescription.value
+            );
+            closeAddTaskModal();
         };
 
         return {
-            project,
-            taskStatuses,
-            addTask,
+            filteredTasksByStatus,
+            openAddTaskModal,
+            closeAddTaskModal,
+            submitNewTask,
+            isModalOpen,
+            newTaskName,
+            newTaskDescription,
+            breadcrumbs,
         };
     },
 };
 </script>
 
 <style scoped>
-/* Styling sesuai kebutuhan */
+.tasks-page {
+    padding: 20px;
+    background-color: #f7fafc;
+}
+.header-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+.task-board {
+    margin-top: 20px;
+}
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+}
 </style>

@@ -11,7 +11,6 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        // Mengambil semua project dengan status
         $projects = Project::with('status')->get(['id', 'name', 'description', 'start_date', 'due_date', 'status_id']);
         return Inertia::render('Projects/Index', [
             'projects' => $projects,
@@ -21,26 +20,24 @@ class ProjectController extends Controller
     public function create()
     {
         $statuses = ProjectStatus::all();
-        return inertia('Projects/Create', ['statuses' => $statuses]);
+        return Inertia::render('Projects/Create', [
+            'statuses' => $statuses,
+        ]);
     }
-
 
     public function store(Request $request)
     {
-        // Validasi data input
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status_id' => 'required|exists:project_statuses,id',
-            'start_date' => 'required|date', // Validasi untuk tanggal mulai
-            'due_date' => 'required|date|after_or_equal:start_date', // Validasi tanggal selesai
+            'start_date' => 'required|date',
+            'due_date' => 'required|date|after_or_equal:start_date',
         ]);
 
-        // Membuat project baru dengan data yang diterima
         Project::create($request->all());
 
-        // Redirect ke halaman project index
-        return redirect()->route('projects.index');
+        return redirect()->route('projects.index')->with('success', 'Project created successfully.');
     }
 
     public function edit(Project $project)
@@ -64,15 +61,15 @@ class ProjectController extends Controller
 
         $project->update($request->all());
 
-        return redirect()->route('projects.index')->with('success', 'Project updated successfully');
+        return redirect()->route('projects.index')->with('success', 'Project updated successfully.');
     }
 
     public function show($id)
     {
         $project = Project::with('tasks')->findOrFail($id);
-
-        return Inertia::render('Projects/Show', [
+        return Inertia::render('Projects/Tasks', [
             'project' => $project,
+            'tasks' => $project->tasks,
         ]);
     }
 
@@ -80,6 +77,6 @@ class ProjectController extends Controller
     {
         $project->delete();
 
-        return redirect()->route('projects.index')->with('success', 'Project deleted successfully');
+        return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
     }
 }

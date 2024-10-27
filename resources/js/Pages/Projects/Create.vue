@@ -21,11 +21,10 @@
                                     type="text"
                                     id="name"
                                     v-model="form.name"
-                                    class="mt-1 w-full px-4 py-2 border rounded"
                                     required
+                                    class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200"
                                 />
                             </div>
-
                             <div class="mb-4">
                                 <label
                                     for="description"
@@ -35,10 +34,9 @@
                                 <textarea
                                     id="description"
                                     v-model="form.description"
-                                    class="mt-1 w-full px-4 py-2 border rounded"
+                                    class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200"
                                 ></textarea>
                             </div>
-
                             <div class="mb-4">
                                 <label
                                     for="status"
@@ -48,8 +46,8 @@
                                 <select
                                     id="status"
                                     v-model="form.status_id"
-                                    class="mt-1 w-full px-4 py-2 border rounded"
                                     required
+                                    class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200"
                                 >
                                     <option
                                         v-for="status in statuses"
@@ -60,7 +58,6 @@
                                     </option>
                                 </select>
                             </div>
-
                             <div class="mb-4">
                                 <label
                                     for="start_date"
@@ -71,11 +68,10 @@
                                     type="date"
                                     id="start_date"
                                     v-model="form.start_date"
-                                    class="mt-1 w-full px-4 py-2 border rounded"
                                     required
+                                    class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200"
                                 />
                             </div>
-
                             <div class="mb-4">
                                 <label
                                     for="due_date"
@@ -86,15 +82,14 @@
                                     type="date"
                                     id="due_date"
                                     v-model="form.due_date"
-                                    class="mt-1 w-full px-4 py-2 border rounded"
                                     required
+                                    class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200"
                                 />
                             </div>
-
                             <div class="flex justify-end">
                                 <button
                                     type="submit"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring focus:ring-blue-300"
                                 >
                                     Create Project
                                 </button>
@@ -107,26 +102,22 @@
     </AuthenticatedLayout>
 </template>
 
-<script>
-export default {
-    props: {
-        statuses: Array,
-    },
-    data() {
-        return {
-            form: {
-                name: "",
-                description: "",
-                status_id: "",
-                start_date: "",
-                due_date: "",
-            },
-        };
-    },
-    methods: {
-        submit() {
-            this.$inertia.post("/projects", this.form);
-        },
-    },
-};
+<script setup>
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+
+const props = defineProps({ statuses: Array });
+const { ref } = require("vue");
+const { useForm } = require("@inertiajs/inertia-vue3");
+
+const form = useForm({
+    name: "",
+    description: "",
+    status_id: "",
+    start_date: "",
+    due_date: "",
+});
+
+function submit() {
+    form.post("/projects");
+}
 </script>

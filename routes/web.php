@@ -16,7 +16,6 @@ Route::get('/', function () {
     ]);
 });
 
-
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -40,15 +39,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 
     // Nested Task Routes for each Project
-    Route::prefix('/projects/{project}')->group(function () {
-        Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
-        Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
-        Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
-        Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
-        Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
-        Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
-        Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+    Route::middleware(['auth', 'verified'])->group(function () {
+        Route::prefix('/projects/{project}')->group(function () {
+            Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
+            Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
+            Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+            Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('project.tasks.show'); // Pastikan kedua parameter ada di sini
+            Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
+            Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+            Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+        });
     });
+
 
     // Route to check if projects exist before showing Task Board
     Route::get('/tasks', function () {
@@ -61,7 +63,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $project = \App\Models\Project::findOrFail($id);
         $tasks = $project->tasks;
         $taskStatuses = \App\Models\TaskStatus::all();
-        return inertia('Tasks/Board', [
+        return inertia('Projects/Tasks', [
             'project' => $project,
             'tasks' => $tasks,
             'taskStatuses' => $taskStatuses

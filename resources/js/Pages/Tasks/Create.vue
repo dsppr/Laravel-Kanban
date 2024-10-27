@@ -15,7 +15,7 @@
                     <input
                         v-model="form.title"
                         type="text"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                        class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200"
                     />
                 </div>
 
@@ -25,7 +25,7 @@
                     >
                     <textarea
                         v-model="form.description"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                        class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200"
                     ></textarea>
                 </div>
 
@@ -35,7 +35,7 @@
                     >
                     <select
                         v-model="form.status_id"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                        class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200"
                     >
                         <option
                             v-for="status in statuses"
@@ -49,7 +49,7 @@
 
                 <button
                     type="submit"
-                    class="bg-blue-500 text-white px-4 py-2 rounded"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring focus:ring-blue-300"
                 >
                     Save Task
                 </button>
@@ -87,7 +87,3 @@ export default {
     },
 };
 </script>
-
-<style scoped>
-/* Tambahkan styling sesuai kebutuhan */
-</style>
